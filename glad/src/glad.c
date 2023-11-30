@@ -12,7 +12,46 @@
     Local files: False
     Omit khrplatform: False
     Reproducible: False
-
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="(@1 @2)" Visibility="Hidden" />
+    <Node Id="(@3 @2 Namespace=:: Member=mix)" Category="CodeSchema_Field" CodeSchemaProperty_IsPublic="True" Icon="2bf3ad45-b7c4-4f9c-a349-f7f4868a42df48" IsDragSource="True" Label="mix" Language="{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}" NativeProvider_CodeItemIds="Microsoft.VisualStudio.VC.SmallList`1[System.Int64]" NativeProvider_Type="float" />
+  </Nodes>
+  <Links>
+    <Link Source="(@1 @2)" Target="(@3 @2 Namespace=:: Member=mix)" Category="Contains" />
+  </Links>
+  <Categories>
+    <Category Id="CodeSchema_Field" Label="字段" BasedOn="CodeSchema_Member" Icon="CodeSchema_Field" />
+    <Category Id="CodeSchema_Member" Label="编号" Icon="CodeSchema_Field" />
+    <Category Id="Contains" Label="包含" Description="链接的源是否包含目标对象" IsContainment="True" />
+  </Categories>
+  <Properties>
+    <Property Id="CodeSchemaProperty_IsPublic" Label="是公共的" Description="一个标志，用于指示该范围是“公共”范围" DataType="System.Boolean" />
+    <Property Id="Icon" Label="图标" Description="图标" DataType="System.String" />
+    <Property Id="IsContainment" DataType="System.Boolean" />
+    <Property Id="IsDragSource" Label="IsDragSource" Description="IsDragSource" DataType="System.Boolean" />
+    <Property Id="Label" Label="标签" Description="可批注对象的可显示标签" DataType="System.String" />
+    <Property Id="Language" Label="语言" Description="语言" DataType="System.String" />
+    <Property Id="NativeProvider_CodeItemIds" Label="NodeIds" Description="NodeIds" DataType="Microsoft.VisualStudio.VC.SmallList`1[[System.Int64, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]" />
+    <Property Id="NativeProvider_Type" Label="Type" Description="Type" DataType="System.String" />
+    <Property Id="Visibility" Label="可见性" Description="定义关系图中的节点是否可见" DataType="System.Windows.Visibility" />
+  </Properties>
+  <QualifiedNames>
+    <Name Id="Assembly" Label="程序集" ValueType="Uri" />
+    <Name Id="File" Label="文件" ValueType="Uri" />
+    <Name Id="Member" Label="编号" ValueType="System.Object" />
+    <Name Id="Namespace" Label="命名空间" ValueType="System.String" />
+  </QualifiedNames>
+  <IdentifierAliases>
+    <Alias n="1" Uri="Assembly=$(VsSolutionUri)/day4/day4.vcxproj" />
+    <Alias n="2" Uri="File=$(VsSolutionUri)/day4/main.cpp" />
+    <Alias n="3" Uri="Assembly=$(2afbaf7e-fc59-4943-a0a0-fbbcd32947f9.OutputPathUri)" />
+  </IdentifierAliases>
+  <Paths>
+    <Path Id="2afbaf7e-fc59-4943-a0a0-fbbcd32947f9.OutputPathUri" Value="file:///E:/Code/VS/LearnOpenGl/day4/x64/Debug/day4.exe" />
+    <Path Id="VsSolutionUri" Value="file:///E:/Code/VS/LearnOpenGl/day4" />
+  </Paths>
+</DirectedGraph>
     Commandline:
         --profile="core" --api="gl=3.3" --generator="c" --spec="gl" --extensions=""
     Online:

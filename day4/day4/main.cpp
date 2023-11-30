@@ -173,7 +173,7 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);//∞Û∂®Œ∆¿Ì
           // draw our first triangleda's
 
-        ourShader.setFloat("mix", mix);
+        ourShader.setFloat("mixValue", mix);
         ourShader.use();
 
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
