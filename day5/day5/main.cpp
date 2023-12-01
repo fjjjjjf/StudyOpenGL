@@ -176,7 +176,7 @@ int main()
 
         //获得uniform transform
         unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-        //使用gluniform函数把矩阵数据发送给着色器 ，第一个参数是uniform位置，第二个是传递矩阵数量 ，第三参数是希望是否进行矩阵转置
+        //使用gluniform函数把矩阵数据发送给着色器 ，第一个参数是uniform位置，第二个是传递矩阵数量 ，第三参数是希望是否进行矩阵转置,最后一个参数是真正的矩阵数据
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
         glBindVertexArray(VAO); 
