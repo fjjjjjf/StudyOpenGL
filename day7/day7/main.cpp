@@ -14,7 +14,8 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 bool firstMouse = true;
 float yaw = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-float pitch = 0.0f;
+float pitch = 0.0f;  //yaw使左右的偏转角， pitch是上下的偏转角
+
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 float fov = 45.0f;
@@ -52,7 +53,7 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+	glfwSetCursorPosCallback(window, mouse_callback);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -209,9 +210,11 @@ int main()
 /*观察矩阵把所有的世界坐标变换为相对于摄像机位置与方向的观察坐标 ，定义一个camera
 	需要一个指向他右侧的向量和指向他上方的向量，lookat坐标，上方，右侧
 
+	//camera 看的方向为z轴负方向，所以其右向量为x轴正方向，上为y轴正方向，因为正z轴指向人
+
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 	//默认指向场景原点
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);//想看的位置
 	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
 	//右向量对着x轴正方向
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -228,8 +231,9 @@ int main()
 			|ux uy uz 0|	|0  1  0  -py|
 			|dx dy dz 0|*	|0  0  1  -pz|
 			|0   0  0 1|	|0  0  0    1|
-	
-	
+	//因为位置向量是相反的，要往前看就往z轴负方向移动，往后就往z轴正方向
+	LookAt函数 三个变量，分别是位置，目标，上向量
+
 	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));*/
@@ -312,19 +316,19 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 	float cameraSpeed = static_cast<float>(2.5 * deltaTime);; // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (firstMouse)//获得初始值
+	if (firstMouse)//获得初始值//
 	{
 		lastX = xpos;
 		lastY = ypos;
