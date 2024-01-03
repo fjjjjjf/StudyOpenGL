@@ -27,11 +27,11 @@ bool firstMouse = true;
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 // timing
-float deltaTime = 0.0f;	// time between current frame and last frame
+float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
@@ -61,7 +61,7 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-	glEnable(GL_DEPTH_TEST);
+	
 	Shader lightingShader("Shader/color.vs", "Shader/color.fs");
 	Shader lightCubeShader("Shader/light_cube.vs", "Shader/light_cube.fs");
 
@@ -125,7 +125,7 @@ int main()
 	unsigned int VBO, cubeVAO;
 	glGenVertexArrays(1, &cubeVAO);
 	glGenBuffers(1, &VBO);
-
+	glEnable(GL_DEPTH_TEST);
 	//复制顶点数组到缓冲区供opengl使用
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -152,91 +152,95 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	// 配置ImGui为使用OpenGL3+渲染
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-
 	
+	float f = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
-		glfwPollEvents();
+		processInput(window);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// 开始ImGui帧
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		//ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-		float f = 0.0f;
+		
 		ImGui::Begin("First Nav");
 		ImGui::SliderFloat("float", &f, -1.0f, 1.0f);
 		ImGui::End();
 
-
-		float currentFrame = static_cast<float>(glfwGetTime());
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-		// input
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		
-
-		processInput(window);
-
-		// render
-		// ------
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// be sure to activate shader when setting uniforms/drawing objects
-		lightCubeShader.use();
-		// view/projection transformations
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		glm::mat4 view = camera.GetViewMatrix();
-		lightCubeShader.setMat4("projection", projection);
-		lightCubeShader.setMat4("view", view);
-
-		// world transformation 世界坐标转换
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-
-		lightCubeShader.setMat4("model", model);
-
-		// render the cube
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-
-		// also draw the lamp object
-		lightingShader.use();
-		//设置物体颜色和光源点颜色
-		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		lightingShader.setMat4("projection", projection);
-		lightingShader.setMat4("view", view);
-
-		glBindVertexArray(cubeVAO);
-		for (unsigned int i = 0; i < 10; i++)
+		//渲染物体
 		{
+
+			float currentFrame = static_cast<float>(glfwGetTime());
+			deltaTime = currentFrame - lastFrame;
+			lastFrame = currentFrame;
+
+
+			// be sure to activate shader when setting uniforms/drawing objects
+			lightCubeShader.use();
+			// view/projection transformations
+			glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+			glm::mat4 view = camera.GetViewMatrix();
+			lightCubeShader.setMat4("projection", projection);
+			lightCubeShader.setMat4("view", view);
+
+			// world transformation 世界坐标转换
 			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle * (float)glfwGetTime()), glm::vec3(1.0f, 0.3f, 0.5f));
-			lightingShader.setMat4("model", model);
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, lightPos);
+			model = glm::scale(model, glm::vec3(0.2f)); // a sm4aller cube
+
+			lightCubeShader.setMat4("model", model);
+
+			// render the cube
+			glBindVertexArray(cubeVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
+			// also draw the lamp object
+			lightingShader.use();
+			//设置物体颜色和光源点颜色
+			lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+			lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+			lightingShader.setMat4("projection", projection);
+			lightingShader.setMat4("view", view);
+
+			glBindVertexArray(cubeVAO);
+			for (unsigned int i = 0; i < 10; i++)
+			{
+				glm::mat4 model = glm::mat4(1.0f);
+				model = glm::translate(model, cubePositions[i]);
+				float angle = 20.0f * i;
+				model = glm::rotate(model, glm::radians(angle * (float)glfwGetTime()), glm::vec3(1.0f, 0.3f, 0.5f));
+				lightingShader.setMat4("model", model);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
 		}
 
-		ImGui::Render();
-		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		
+		
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
 
 		glfwSwapBuffers(window);
-		
-
+		glfwPollEvents();
 
 	}
 
@@ -275,29 +279,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-//void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-//{
-//	float xpos = static_cast<float>(xposIn);
-//	float ypos = static_cast<float>(yposIn);
-//
-//	if (firstMouse)
-//	{
-//		lastX = xpos;
-//		lastY = ypos;
-//		firstMouse = false;
-//	}
-//
-//	float xoffset = xpos - lastX;
-//	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-//
-//	lastX = xpos;
-//	lastY = ypos;
-//
-//	camera.ProcessMouseMovement(xoffset, yoffset);
-//}
-
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(static_cast<float>(yoffset));
