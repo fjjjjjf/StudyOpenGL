@@ -158,8 +158,9 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
+	ImVec4 objectcolor = ImVec4(1.0f, 0.5f, 0.31f,1.0f);
 	
-	float f = 0.0f;
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -173,7 +174,9 @@ int main()
 
 		
 		ImGui::Begin("First Nav");
-		ImGui::SliderFloat("float", &f, -1.0f, 1.0f);
+		ImGui::ColorEdit3("RGB Color", (float*)&objectcolor);
+		
+	
 		ImGui::End();
 
 		ImGui::Render();
@@ -212,7 +215,7 @@ int main()
 			// also draw the lamp object
 			lightingShader.use();
 			//设置物体颜色和光源点颜色
-			lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+			lightingShader.setVec3("objectColor", objectcolor.x, objectcolor.y, objectcolor.z);
 			lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 			lightingShader.setMat4("projection", projection);
 			lightingShader.setMat4("view", view);
