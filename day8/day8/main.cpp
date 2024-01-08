@@ -175,7 +175,7 @@ int main()
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+		model = glm::scale(model, glm::vec3(0.2f)); // a sm4aller cube
 	
 		lightCubeShader.setMat4("model", model);
 	
