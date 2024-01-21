@@ -22,7 +22,7 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 
 bool firstMouse = true;
-
+int updateHightLight = 32;
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -57,6 +57,8 @@ int main()
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -145,7 +147,7 @@ int main()
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-	// 配置ImGui为使用OpenGL3+渲染
+	
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
@@ -169,7 +171,8 @@ int main()
 		
 		ImGui::Begin("First Nav");
 		ImGui::ColorEdit3("RGB Color", (float*)&objectcolor);
-		
+		ImGui::SliderInt("hightlighttime", &updateHightLight,0,50000);
+
 	
 		ImGui::End();
 
@@ -180,10 +183,11 @@ int main()
 		{
 			
 			lightCubeShader.use();
-			lightCubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+			lightCubeShader.setVec3("objectColor", objectcolor.x, objectcolor.y, objectcolor.z);
 			lightCubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 			lightCubeShader.setVec3("lightPos", lightPos);
-
+			lightCubeShader.setVec3("viewPos", camera.Position);
+			lightCubeShader.setInt("Value", updateHightLight);
 
 			glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			glm::mat4 view = camera.GetViewMatrix();
@@ -205,10 +209,13 @@ int main()
 			//设置物体颜色和光源点颜色
 			lightingShader.setMat4("projection", projection);
 			lightingShader.setMat4("view", view);
+
+			lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+			lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, lightPos);
 			model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-		
+			
 			lightingShader.setMat4("model", model);
 			glBindVertexArray(cubeVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
