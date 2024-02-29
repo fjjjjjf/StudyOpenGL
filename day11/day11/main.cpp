@@ -22,7 +22,7 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 
 bool firstMouse = true;
-int updateHightLight = 32;
+
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -64,7 +64,13 @@ int main()
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
-
+	//GLFWwindow* window2 = glfwCreateWindow(640, 480, "Window 2", nullptr, nullptr);
+	//if (!window2) {
+	//	std::cerr << "Failed to create GLFW window 2" << std::endl;
+	//	glfwTerminate();
+	//	return -1;
+	//}
+	//glfwMakeContextCurrent(window2);
 	Shader lightingShader("Shader/color.vs", "Shader/color.fs");
 	Shader lightCubeShader("Shader/light_cube.vs", "Shader/light_cube.fs"); //光源
 
@@ -159,35 +165,54 @@ int main()
 		float currentFrame = static_cast<float>(glfwGetTime());
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		
 		processInput(window);
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+		//glfwMakeContextCurrent(window);
+		//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+		//imgui组件
+		{
 
 
-		ImGui::Begin("First Nav");
-		ImGui::ColorEdit3("RGB Color", (float*)&objectcolor);
-		ImGui::SliderInt("hightlighttime", &updateHightLight, 0, 50000);
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+			ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
 
-		ImGui::End();
+			ImGui::Begin("First Nav");
+			ImGui::ColorEdit3("RGB Color", (float*)&objectcolor);
+			//ImGui::SliderInt("hightlighttime", &updateHightLight, 0, 50000);
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+			ImGui::End();
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		}
 		//渲染物体
 		{
+			glm::vec3 lightColor;
+			lightColor.x = sin(glfwGetTime() * 2.0f);
+			lightColor.y = sin(glfwGetTime() * 0.7f);
+			lightColor.z = sin(glfwGetTime() * 1.3f);
+
+			glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // 降低影响
+			glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // 很低的影响
 
 			lightCubeShader.use();
 			lightCubeShader.setVec3("objectColor", objectcolor.x, objectcolor.y, objectcolor.z);
 			lightCubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 			lightCubeShader.setVec3("lightPos", lightPos);
 			lightCubeShader.setVec3("viewPos", camera.Position);
-			lightCubeShader.setInt("Value", updateHightLight);
+			lightCubeShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+			lightCubeShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+			lightCubeShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+			lightCubeShader.setFloat("material.shininess", 32.0f);
+			lightCubeShader.setVec3("light.ambient", ambientColor);
+			lightCubeShader.setVec3("light.diffuse", diffuseColor); // 将光照调暗了一些以搭配场景
+			lightCubeShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 
 			glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 			glm::mat4 view = camera.GetViewMatrix();
@@ -221,8 +246,6 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-
-
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			GLFWwindow* backup_current_context = glfwGetCurrentContext();
@@ -232,6 +255,9 @@ int main()
 		}
 
 		glfwSwapBuffers(window);
+
+	
+
 		glfwPollEvents();
 
 	}
